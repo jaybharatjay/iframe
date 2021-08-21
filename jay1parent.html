@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Parent Window</title>
+</head>
+<body>
+
+    <h1>Parent Window</h1>
+    <p>Please Enter name: <input type="text" id="fname"></p>
+    <p>Please Enter age: <input type="text" id="age"></p>
+    <p>Send Message: <button id="message_button">Send to IFRAME</button></p>
+    <p>Got Message:</p>
+    <div id="results1"></div>
+    <div id="results2"></div>
+    <div id="results3"></div>
+    <div id="results4"></div>
+    <br/>
+
+    <script>
+        // addEventListener support for IE8
+        function bindEvent(element, eventName, eventHandler) {
+            if (element.addEventListener){
+                element.addEventListener(eventName, eventHandler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent('on' + eventName, eventHandler);
+            }
+        }
+
+        //var iframeSource = 'jay2iframe.html';
+var iframeSource = 'http://192.168.1.14/iframe/jay2iframe.html';
+        // Create the iframe
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('src', iframeSource);
+        iframe.setAttribute('id', 'the_iframe');
+        iframe.style.width = 500 + 'px';
+        iframe.style.height = 400 + 'px';
+        document.body.appendChild(iframe);
+
+        // Send a message to the child iframe
+        var iframeEl = document.getElementById('the_iframe'),
+            messageButton = document.getElementById('message_button'),
+            results = document.getElementById('results');
+
+
+        // Send a message to the child iframe
+        var sendMessage = function(msg) {
+            // Make sure you are sending a string, and to stringify JSON
+            iframeEl.contentWindow.postMessage(msg, '*');
+        };
+
+        // Send random messge data on every button click
+        bindEvent(messageButton, 'click', function (e) {
+            var random = Math.random();
+            var fname = document.getElementById('fname').value;
+            var age = document.getElementById('age').value;
+            
+            sendMessage('jay1&fname='+fname+'&age='+age + random);
+        });
+
+        // Listen to message from child window
+        bindEvent(window, 'message', function (e) {
+            //results.innerHTML = e.data;
+            const decoded = JSON.parse(e.data);
+            results1.innerHTML = decoded.action;
+            results2.innerHTML = decoded.studentStudying;
+            results3.innerHTML = decoded.roll;
+            var timestamp = decoded.date;
+            var date = new Date(decoded.date);
+
+
+            results4.innerHTML = date;
+
+        });
+    </script>
+</body>
+</html>
